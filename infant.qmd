@@ -9,8 +9,6 @@ execute:
   echo: true
 ---
 
-This report about a study.
-
 ```{r}
 #| label: setup
 #| include: false
@@ -20,8 +18,6 @@ library(rio)
 library(dplyr)
 library(ggplot2)
 ```
-
-Hello.
 
 ## Introduction
 
