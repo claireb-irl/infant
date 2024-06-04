@@ -7,24 +7,96 @@ execute:
   echo: true
 ---
 
-
 ```{r}
 #| label: setup
 #| include: false
 # so that code is not shown in report  
 # load packages here to make dependencies clear
-
+library(rio)
+library(dplyr)
+library(ggplot2)
 ```
 
 ## Introduction
 
-This report Child Health and Development Study
+This report analyses data from a Child Health and Development Study 
+conducted in the US 1960-1967.
 
 ```{r}
 #| label: import-data
 # add code here to import infant.xlsx
+infant <- import("infant.xlsx", setclass = "tibble")
+```
+
+The data are a subset of the full study corresponding to live births of a 
+single male foetus. Here we will focus on characteristics of the mother 
+and child.
+
+```{r}
+#| label: explore-data
+# add code here to import infant.xlsx
+skimr::skim(infant)
+```
+
+```{r}
+#| label: select-variables
+# remove redundant variables and variables related to father
+infant <- select(infant, -pluralty, -outcome, -sex, -(drace:dwt))
+```
+
+We exclude extremely premature babies (gestation less than 28 
+weeks) and extremely late babies (gestation more than 52 weeks) from the 
+analysis to focus on the typical gestation range.
+
+```{r}
+#| label: filter-variables
+# remove redundant variables and variables related to father
+infant <- filter(infant, gestation > 28 *7 & gestation < 52 * 7)
+```
+
+```{r}
+#| label: mutate-variables
+# if `ht` is 999, replace it with NA
+infant <- mutate(infant, 
+                 ht = ifelse(ht == 999, NA, ht))
+```
+
+```{r}
+#| label: additional-processing
+# processing of other variables ready for later analysis
+infant <- infant |>
+    mutate(gestation = ifelse(gestation == 999, NA, gestation))
 
 ```
 
+## Low Birth Weight 
 
+An infant is categorised as low weight if its birth weight is ≤ 2500 
+grams, regardless of gestation. The following table shows the distribution 
+of birth weight in the sample
 
+```{r}
+#| label: table-bwt
+tab <- infant |>
+    mutate(bwt = bwt * 28.35,
+           `Birth weight (g)` = cut(bwt, 
+                                    c(1500, 2000, 2500, 3000, 3500, 5000),
+                                    dig.lab = 4)) |>
+    group_by(`Birth weight (g)`) |>
+    summarise(N = n())
+knitr::kable(tab, align = "lr")
+```
+
+```{r} 
+#| label: plots-bwt
+#| layout-ncol: 2
+#| fig-width: 4
+#| fig-height: 4
+#| fig-cap: 
+#|   - "`ggplot` histogram"
+#|   - "`ggplot` density curve"
+ggplot(infant, aes(x = bwt * 28.35)) + 
+  geom_histogram(bins = 20)
+ggplot(infant, aes(x = bwt * 28.35)) + 
+  geom_density()
+```
