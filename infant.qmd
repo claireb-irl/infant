@@ -9,8 +9,6 @@ execute:
   echo: true
 ---
 
-My name is Isabella
-
 ```{r}
 #| label: setup
 #| include: false
