@@ -1,5 +1,6 @@
 ---
 title: "This report Child Health and Development Study"
+subtitle: "Fork of original"
 author: "Isabella Gollini"
 date: today
 format: 
@@ -18,6 +19,8 @@ library(rio)
 library(dplyr)
 library(ggplot2)
 ```
+
+# Version Control with GitHub
 
 ## Introduction
 
